@@ -82,8 +82,8 @@ $tokens.sort.map.with_index do |x, i|
   end
 end
 
-def charttitle(charttype)
-  "Branch gh-pages count of: #{charttype} grouped by file"
+def charttitle(charttype, ind)
+  "#{ind + 1} - Branch gh-pages count of: #{charttype} grouped by file"
 end
 
 def drawChart(whichChart, data, chartstring, chartnumber, charttitle, chartdiv)
@@ -113,12 +113,12 @@ pagecount =  $structure.size / 50
 end
 
 #add all the pie charts to each page
-$structure.map.with_index do |chart, index|
+$structure.map.with_index do |chart, ind|
     data0 = chart[0].tr('<""=:','')
     data1 = chart[1..-1]
     v = 'Values'
-    i = (index / 50).ceil
-    instance_variable_set("@page#{i > 0 ? i : ''}", instance_variable_get("@page#{i > 0 ? i : ''}") + "          google.charts.setOnLoadCallback(drawChart#{data0});\n" + drawChart("#{data0}", data1, "#{chart[0]}", "#{v}", "#{charttitle(chart[0])}", "#{data0}"))
+    i = (ind / 50).ceil
+    instance_variable_set("@page#{i > 0 ? i : ''}", instance_variable_get("@page#{i > 0 ? i : ''}") + "          google.charts.setOnLoadCallback(drawChart#{data0});\n" + drawChart("#{data0}", data1, "#{chart[0]}", "#{v}", "#{charttitle(chart[0], ind)}", "#{data0}"))
 end
 
 #buld all the website pages
@@ -143,7 +143,7 @@ $pagetemp = "
               <span class='icon-bar'></span>
               <span class='icon-bar'></span>
               </button>
-            <a class='navbar-brand' href='#' id='head1'>Analytics Dashboard</a>
+            <a class='navbar-brand' href='index.html' id='head1'>Analytics Dashboard</a>
           </div>
           <div id='navbar' class='navbar-collapse collapse'>
             <ul class='nav navbar-nav'>\n"
