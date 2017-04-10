@@ -1,160 +1,7 @@
-#!/usr/bin/env ruby
-
+$tokens = []
+$structure = []
 #chart size global variables
 $width = 400; $height=330;
-#declare variables
-extension=[]
-
-version=[]; xmlns=[]; complexType=[]; element=[]; sequence=[]; simpleContent=[]; xsextension=[]; attribute=[]; elementstring=[]; elementshort=[];
-elementfloat=[]; attributestring=[]; elementbyte=[]; xsimport=[]; elementref=[]; xschoice=[]; complexContent=[]; annotation=[]; documentation=[];
-xsany=[]; xsenumeration=[]; xsanyAttribute=[]; minOccurs0=[]; minOccurs1=[]; maxOccursunbounded=[]; useoptional=[]; userequired=[]; typeanyURI=[];
-typebase64Binary=[]; mixedtrue=[]; typeID=[]; processContentslax=[]; namespace=[]; abstracttrue=[]; typedateTime=[]; typeNCName=[]; restriction=[];
-attributeGroup=[]; targetNamespace=[]; elementFormDefault=[]; attributeFormDefault=[]; doctype=[]; attlist=[]; entity=[]; basebase64Binary=[];
-blockDefaultsubstitution=[]; typedsKeyInfoType=[]; elementrefsamlp=[]; elementrefsaml=[]; xmlnsds=[]; xmllangen=[];
-#loop over schema files
-Dir.glob("schema/*.xsd").map.with_index do |schema, i|
-  filename = schema.split('/').last
-  file = File.open(schema, 'r'); data = file.read; file.close;
-
-  version            << data.gsub(/(.*<xs:schema.*?version=")(.*?)(">.*<\/xs:schema>)/m,'\2').strip
-  xmlns              << [filename, data.scan(/xmlns[=:]/).size         ]
-  xmlnsds            << [filename, data.scan(/xmlns:ds=/).size         ]
-  complexType        << [filename, data.scan(/<xs:complexType/).size   ]
-  element            << [filename, data.scan(/<xs:element/).size       ]
-  sequence           << [filename, data.scan(/<xs:sequence/).size      ]
-  simpleContent      << [filename, data.scan(/<xs:simpleContent/).size ]
-  xsextension        << [filename, data.scan(/<xs:extension/).size     ]
-  attribute          << [filename, data.scan(/<xs:attribute/).size     ]
-  elementstring      << [filename, data.scan(/<xs:element .*?type="xs:string"/).size]
-  elementshort       << [filename, data.scan(/<xs:element type="xs:short"/).size    ]
-  elementfloat       << [filename, data.scan(/<xs:element type="xs:float"/).size    ]
-  attributestring    << [filename, data.scan(/<xs:attribute type="xs:string"/).size ]
-  elementbyte        << [filename, data.scan(/<xs:element type="xs:byte"/).size     ]
-  xsimport           << [filename, data.scan(/<xs:import/).size         ]
-  elementref         << [filename, data.scan(/<xs:element ref=/).size   ]
-  xschoice           << [filename, data.scan(/<xs:choice/).size         ]
-  complexContent     << [filename, data.scan(/<xs:complexContent/).size ]
-  annotation         << [filename, data.scan(/<xs:annotation/).size     ]
-  documentation      << [filename, data.scan(/<xs:documentation/).size  ]
-  xsany              << [filename, data.scan(/<xs:any/).size            ]
-  xsenumeration      << [filename, data.scan(/<xs:enumeration/).size    ]
-  xsanyAttribute     << [filename, data.scan(/<xs:anyAttribute/).size       ]
-  minOccurs0         << [filename, data.scan(/minOccurs="0"/).size          ]
-  #minOccurs1        << [filename, data.scan(/minOccurs="1"/).size          ]
-  maxOccursunbounded << [filename, data.scan(/maxOccurs="unbounded"/).size  ]
-  useoptional        << [filename, data.scan(/use="optional"/).size         ]
-  userequired        << [filename, data.scan(/use="required"/).size         ]
-  typeanyURI         << [filename, data.scan(/type="anyURI"/).size          ]
-  typebase64Binary   << [filename, data.scan(/type="base64Binary"/).size    ]
-  mixedtrue          << [filename, data.scan(/mixed="true"/).size           ]
-  typeID             << [filename, data.scan(/type="ID"/).size              ]
-  processContentslax << [filename, data.scan(/processContents="lax"/).size  ]
-  namespace          << [filename, data.scan(/namespace="/).size            ]
-  abstracttrue       << [filename, data.scan(/abstract="true"/).size        ]
-  typedateTime       << [filename, data.scan(/type="dateTime"/).size        ]
-  typeNCName         << [filename, data.scan(/type="NCName"/).size          ]
-  restriction        << [filename, data.scan(/<xs:restriction/).size        ]
-  attributeGroup     << [filename, data.scan(/<xs:attributeGroup/).size     ]
-  targetNamespace    << [filename, data.scan(/targetNamespace/).size        ]
-  elementFormDefault << [filename, data.scan(/elementFormDefault/).size     ]
-  attributeFormDefault << [filename, data.scan(/attributeFormDefault/).size ]
-  doctype                  << [filename, data.scan(/<!DOCTYPE/).size        ]
-  attlist                  << [filename, data.scan(/<!ATTLIST/).size        ]
-  entity                   << [filename, data.scan(/<!ENTITY/).size         ]
-  basebase64Binary         << [filename, data.scan(/base="base64Binary"/).size         ]
-  blockDefaultsubstitution << [filename, data.scan(/blockDefault="substitution"/).size ]
-  typedsKeyInfoType        << [filename, data.scan(/type="ds:KeyInfoType"/).size       ]
-  elementrefsamlp          << [filename, data.scan(/xs:element ref="samlp:/).size      ]
-  elementrefsaml           << [filename, data.scan(/<xs:element ref="saml:/).size      ]
-end
-version = version.group_by{|x| x}.map{|k, v| [k, v.size]}
-#puts version
-#
-def charttitle(charttype)
-  "Branch gh-pages count of #{charttype} grouped by file"
-end
-#page one data structure
-v = 'Values'
-pageone = [ [version, 'version', 'version count', v, 'Branch count of schema grouped by version', 'version'],
-            [xmlns, 'xmlns', 'xmlns count', v, charttitle('xmlns'), 'xmlns'],
-            [complexType, 'complexType', 'complexType count', v, charttitle('xs:complexType'), 'complexType'],
-            [element, 'element', 'element count', v, charttitle('xs:element'), 'element'],
-            [sequence, 'sequence', 'sequence count', v, charttitle('xs:sequence'), 'sequence'],
-            [simpleContent, 'simpleContent', 'simpleContent count', v, charttitle('xs:simpleContent'), 'simpleContent'],
-            [attributeGroup, 'attributeGroup', 'attributeGroup count', v, charttitle('xs:attributeGroup'), 'attributeGroup'],
-            [xsextension, 'extension', 'extension count', v, charttitle('xs:extension'), 'xsextension'],
-            [attribute, 'attribute', 'attribute count', v, charttitle('xs:attribute'), 'attribute'],
-            [elementstring, 'elementstring', 'element type="xs:string"', v, charttitle('xs:element type="xs:string"'), 'elementstring'],
-            [elementshort , 'elementshort', 'xs:element type="xs:short"', v, charttitle('xs:element type="xs:short"'), 'elementshort'],
-            [elementfloat, 'elementfloat', 'xs:element type="xs:float"', v, charttitle('xs:element type="xs:float"'), 'elementfloat'],
-            [attributestring, 'attributestring', 'xs:attribute type="xs:string"', v, charttitle('xs:attribute type="xs:string"'), 'attributestring'],
-            [elementbyte, 'elementbyte', 'xs:element type="xs:byte"', v, charttitle('xs:element type="xs:byte"'), 'elementbyte'],
-            [xsimport, 'xsimport', 'xs:import', v, charttitle('xs:import'), 'xsimport'],
-            [elementref, 'xselementref', 'xs:element ref=', v, charttitle('xs:element ref='), 'elementref'],
-            [xschoice, 'xschoice', 'xs:choice', v, charttitle('xs:choice'), 'xschoice'],
-            [complexContent, 'complexContent', 'xs:complexContent', v, charttitle('xs:complexContent'), 'complexContent'],
-            [annotation, 'annotation', 'xs:annotation', v, charttitle('xs:annotation'), 'annotation'],
-            [documentation, 'documentation', 'xs:documentation', v, charttitle('xs:documentation'), 'documentation'],
-            [xsany, 'any', 'xs:any', v, charttitle('xs:any'), 'xsany'],
-            [xsenumeration, 'xsenumeration', 'xs:enumeration', v, charttitle('xs:enumeration'), 'xsenumeration'],
-            [xsanyAttribute, 'xsanyAttribute', 'xs:anyAttribute', v, charttitle('xs:anyAttribute'), 'xsanyAttribute'],
-            [minOccurs0, 'minOccurs0', 'minOccurs="0"', v, charttitle('minOccurs="0"'), 'minOccurs0'],
-            #[minOccurs1, 'minOccurs1', 'minOccurs="1"', v, charttitle('minOccurs="1"'), 'minOccurs1'],
-            [maxOccursunbounded, 'maxOccursunbounded', 'maxOccurs="unbounded"', v, charttitle('maxOccurs="unbounded"'), 'maxOccursunbounded'],
-            [useoptional, 'useoptional', 'use="optional"', v, charttitle('use="optional"'), 'useoptional'],
-            [userequired, 'userequired', 'use="required"', v, charttitle('use="required"'), 'userequired'],
-            [typeanyURI, 'typeanyURI', 'type="anyURI"', v , charttitle('type="anyURI"'), 'typeanyURI'],
-            [typebase64Binary, 'typebase64Binary', 'type="base64Binary"', v, charttitle('type="base64Binary"'), 'typebase64Binary'],
-            [mixedtrue, 'mixedtrue', 'mixed="true"', v, charttitle('mixed="true"'), 'mixedtrue'],
-            [typeID, 'typeID', 'type="ID"', v, charttitle('type="ID"'), 'typeID'],
-            [processContentslax, 'processContentslax', 'processContents="lax"', v, charttitle('processContents="lax"'), 'processContentslax'],
-            [namespace, 'namespace', 'namespace="..."', v, charttitle('namespace="..."'), 'namespace'],
-            [abstracttrue, 'abstracttrue', 'abstract="true"', v, charttitle('abstract="true"'), 'abstracttrue'],
-            [typedateTime, 'typedateTime', 'type="dateTime"', v, charttitle('type="dateTime"'), 'typedateTime'],
-            [typeNCName, 'typeNCName', 'type="NCName"', v, charttitle('type="NCName"'), 'typeNCName'],
-            [restriction, 'restriction', 'xs:restriction', v, charttitle('xs:restriction'), 'restriction'],
-            [targetNamespace, 'targetNamespace', 'targetNamespace', v, charttitle('targetNamespace'), 'targetNamespace'],
-            [elementFormDefault, 'elementFormDefault', 'elementFormDefault', v, charttitle('elementFormDefault'), 'elementFormDefault'],
-            [attributeFormDefault, 'attributeFormDefault', 'attributeFormDefault', v, charttitle('attributeFormDefault'), 'attributeFormDefault'],
-            [doctype, 'doctype', 'doctype', v, charttitle('<!DOCTYPE'), 'doctype'],
-            [attlist, 'attlist', 'attlist', v, charttitle('<!ATTLIST'), 'attlist'],
-            [entity, 'entity', 'entity', v, charttitle('<!ENTITY'), 'entity'],
-            [basebase64Binary, 'basebase64Binary', 'base="base64Binary"', v, charttitle('base="base64Binary"'), 'basebase64Binary'],
-            [blockDefaultsubstitution, 'blockDefaultsubstitution', 'blockDefault="substitution"', v, charttitle('blockDefault="substitution"'), 'blockDefaultsubstitution'],
-            [typedsKeyInfoType, 'typedsKeyInfoType', 'type="ds:KeyInfoType"', v, charttitle('type="ds:KeyInfoType"'), 'typedsKeyInfoType' ],
-            [elementrefsamlp, 'elementrefsamlp', '<xs:element ref="samlp:', v, charttitle('<xs:element ref="samlp:'), 'elementrefsamlp'],
-            [elementrefsaml, 'elementrefsaml', '<xs:element ref="saml:', v, charttitle('<xs:element ref="saml:'), 'elementrefsaml'],
-            [xmlnsds, 'xmlnsds', 'xmlns:ds=', v, charttitle('xmlns:ds='), 'xmlnsds']
-          ]
-#integrate cloc stats via shell command
-cloc = `cloc . --ignored=ignored.txt --skip-uniqueness --quiet > cloc.txt`
-file = File.open('cloc.txt', 'r')
-clocdata = file.read
-file.close
-#create git log for histogram on homepage
-log = `git log --pretty=format:"%ad" --date=short > log.txt`
-file = File.open('log.txt', 'r')
-logdata = file.read
-file.close
-logdata = logdata.lines.group_by{|x| x.strip}.map{|k,v| [k,v.size]}
-logdata.unshift(['Date', 'Amount'])
-#
-Dir.glob("**/*").map do |x|
-  ext = File.extname(x)
-  if ext == ''
-    ext = 'folders'
-  end
-  extension << ext
-  #sz = File.size(x)
-  #sizes << sz
-end
-
-#
-allFiles = extension.flatten.group_by{|x| x}.map{|k, v| [k, v.size]}
-
-#Create pages
-@page=''; @page1='';
-
 #start common page region
 $pagetemp = <<-EOS
 <!DOCTYPE html>
@@ -173,50 +20,33 @@ $pagetemp = <<-EOS
         <style>
           h2 { text-align: center; font-size: 19pt; background-color: rgba(49,37,152,0.8);
                color: #fff; border-radius: 1pt 1pt 1pt 1pt; padding: 14px; }
-
           .container-fluid { padding: 0px; }
-
           .navbar, .navbar-default { padding: 5pt; background-color: rgba(49,37,152,0.8) !important;
              color: #fff !important; font-size: 12pt; border-color: #none !important; }
-
           .navbar, .navbar-default li hover { color: #fff !important; }
-
           .navbar, .navbar-default li a { color: #000000 !important; }
-
           .navbar-default .navbar-brand { color: #fff; font-size: 15pt; }
-
           .navbar-default .navbar-nav > .active > a,
           .navbar-default .navbar-nav > .active > a:hover,
           .navbar-default .navbar-nav > .active > a:focus {
             background-color: transparent !important; }
-
           .navbar-default .navbar-nav > .open > a,
           .navbar-default .navbar-nav > .open > a:focus,
           .navbar-default .navbar-nav > .open > a:hover {
           	color: #555; background-color: #ff0000; font-weight: bold; }
-
           .navbar-default .navbar-brand:hover,
           .navbar-default .navbar-brand:focus {
             color: #fff; background-color: transparent; }
-
           .navbar-default .navbar-text { color: #000; }
-
           .nav { padding-right: 300px; }
-
           .dropdown-menu > li > a { display: block; padding: 3px 20px; clear: both;
             font-weight: 600; line-height: 1.42857143; color: #333; white-space: nowrap; }
-
           div[id^="chart_div"] > div > div { margin: auto; }
-
           .chartNumber { color: purple; font-size: 22pt; }
-
           .overview { font-size: 14pt;  }
-
          .footer { background-color: rgba(49,37,152,0.8);
            min-height: 200px; color: #fff !important; }
-
          .footer ul a { color: #fff !important; }
-
          pre { white-space: pre-wrap; //css3
              white-space: moz-pre-wrap; //firefox
              white-space: -pre-wrap; //opera 4-6
@@ -232,8 +62,32 @@ $pagetemp = <<-EOS
           google.charts.load('current', {'packages':['corechart']});
 EOS
 
+#loop over schema files
+Dir.glob("schema/*.xsd").map.with_index do |schema, i|
+  filename = schema.split('/').last
+  file = File.open(schema, 'r'); data = file.read; file.close;
+  data.scan(/<xs:\w+|\w+="\w+"/).uniq do |x|
+    if !$tokens.include? x
+      $tokens << x
+    end
+  end
+end
+
+$tokens.sort.map.with_index do |x, i|
+  $structure[i] = [x]
+  Dir.glob("schema/*.xsd").map.with_index do |schema, index|
+    filename = schema.split('/').last
+    file = File.open(schema, 'r'); data = file.read; file.close;
+    $structure[i] << [filename, data.scan(x).size]
+  end
+end
+
+def charttitle(charttype)
+  "Branch gh-pages count of: #{charttype} grouped by file"
+end
+
 def drawChart(whichChart, data, chartstring, chartnumber, charttitle, chartdiv)
-        "
+      "
           function drawChart#{whichChart}() {
             // Create the data table.
             var data = new google.visualization.DataTable();
@@ -252,45 +106,28 @@ def drawChart(whichChart, data, chartstring, chartnumber, charttitle, chartdiv)
           }\n"
 end
 
-def drawChartHistogram(data)
-        "
-          function drawChartHistogram(){
-            var data = google.visualization.arrayToDataTable(#{data});
-            var options = {
-              title: 'Histogram of commits by amount',
-              legend: { position: 'top', maxLines: 2 },
-            };
-            var chart = new google.visualization.Histogram(document.getElementById('chart_div_hist'));
-            chart.draw(data, options);
-        }\n"
+#try 50 charts per page
+pagecount =  $structure.size / 50
+(0..pagecount).map do |i|
+  instance_variable_set("@page#{i > 0 ? i : ''}", $pagetemp)
+end
+
+#add all the pie charts to each page
+$structure.map.with_index do |chart, index|
+    data0 = chart[0].tr('<""=:','')
+    data1 = chart[1..-1]
+    v = 'Values'
+    i = (index / 50).ceil
+    instance_variable_set("@page#{i > 0 ? i : ''}", instance_variable_get("@page#{i > 0 ? i : ''}") + "          google.charts.setOnLoadCallback(drawChart#{data0});\n" + drawChart("#{data0}", data1, "#{chart[0]}", "#{v}", "#{charttitle(chart[0])}", "#{data0}"))
 end
 
 #buld all the website pages
-def pagebuild
-  (0..1).map do |i|
+def pagebuild(pagecount)
+  (0..pagecount).map do |i|
     instance_variable_set("@page#{i > 0 ? i : ''}", instance_variable_get("@page#{i > 0 ? i : ''}") + $pagetemp)
   end
 end
 #
-pagebuild
-#create JavaScript chart function for home page
-#set the JavaScript Callback
-@page  += "
-          google.charts.setOnLoadCallback(drawChartAll);\n";
-@page  += drawChart('All', allFiles, 'Schema count', 'Values', 'Branch gh-pages count of files grouped by file type', 'all')
-#histogram
-@page  += "
-          google.charts.setOnLoadCallback(drawChartHistogram);\n";
-@page += drawChartHistogram(logdata)
-#set the JavaScript Callback
-pageone.map.with_index do |chart, i|
-  @page1  += "
-          google.charts.setOnLoadCallback(drawChart#{chart[1]});\n";
-end
-#create JavaScript chart functions for page 1
-pageone.map do |chart|
-    @page1 += drawChart("#{chart[1]}", chart[0], "#{chart[2]}", "#{chart[3]}", "#{chart[4]}", "#{chart[5]}")
-end
 #continue common page
 $pagetemp = "
       </script>
@@ -309,52 +146,59 @@ $pagetemp = "
             <a class='navbar-brand' href='#' id='head1'>Analytics Dashboard</a>
           </div>
           <div id='navbar' class='navbar-collapse collapse'>
-            <ul class='nav navbar-nav'>
-              <li class=''><a href='index.html'>Home</a></li>
-              <li class=''><a href='index1.html'>Charts</a></li>
+            <ul class='nav navbar-nav'>\n"
+
+#continue to build all the pages
+pagebuild(pagecount)
+
+$pagetemp = ''
+
+(0..pagecount).map do |i|
+  $pagetemp += "
+              <li class=''><a href='index#{i > 0 ? i : ''}.html'>Page #{i + 1}</a></li>\n"
+end
+
+#continue to build all the pages
+pagebuild(pagecount)
+
+$pagetemp = "
             </ul>
           </div>
         </div>
       </nav>
       <div class='container-fluid'>\n"
-=begin
-      <div class='row'>
-        <div class='col-sm-6 col-md-4 col-lg-3'>
-        </div>
-      </div>
-=end
-pagebuild
-#homepage
-@page += "
-      <h2>Featured Statistics</h2>
-      <pre>
-        <code>
-          #{clocdata}
-        </code>
-      </pre>
-      <div class='row'>
-        <div class='col-sm-6 col-md-4 col-lg-3' id='chart_div_all'></div>
-        <div class='col-sm-6 col-md-4 col-lg-3' id='chart_div_hist' style='width: 600px; height: 400px;'></div>
-      </div>\n"
-#
-@page1 += "
-      <div class='row'>\n"
+
+#continue to build all the pages
+pagebuild(pagecount)
+
 #add chart divs to page 1
-pageone.map do |chart|
-  @page1 += "
-        <div class='col-sm-6 col-md-4 col-lg-3' id='chart_div_#{chart[5]}'></div>\n"
+$structure.map.with_index do |chart, index|
+  data0 = chart[0].tr('<""=:','')
+  i = (index / 50).ceil
+  instance_variable_set("@page#{i > 0 ? i : ''}", instance_variable_get("@page#{i > 0 ? i : ''}") + "       <div class='col-sm-6 col-md-4 col-lg-3' id='chart_div_#{data0}'></div>\n")
 end
-@page1 += "
-      </div>"
+
 #finish common page region.
 $pagetemp = "
       </div>
       <footer class='footer'>
         <div class='container'>
           <ul class='list-unstyled'>
-            <li><a href='#head1'>Back to top</a></li>
-            <li><a href='index.html'>Home</a></li>
-            <li><a href='index1.html'>Charts</a></li>
+            <li><a href='#head1'>Back to top</a></li>\n"
+#continue to build all the pages
+pagebuild(pagecount)
+
+$pagetemp = ''
+
+(0..pagecount).map do |i|
+  $pagetemp += "
+              <li class=''><a href='index#{i > 0 ? i : ''}.html'>Page #{i + 1}</a></li>\n"
+end
+
+#continue to build all the pages
+pagebuild(pagecount)
+
+$pagetemp = "
           </ul>
         </div>
       </footer>
@@ -364,10 +208,12 @@ $pagetemp = "
       <script src='bootstrap/js/bootstrap.min.js'></script>
     </body>
 </html>"
+
 #finish building all the pages
-pagebuild
+pagebuild(pagecount)
+
 #write all the HTML pages to files
-(0..1).map do |i|
+(0..pagecount).map do |i|
   file = File.open("index#{i > 0 ? i : ''}.html", 'w')
   file.write(instance_variable_get("@page#{i > 0 ? i : ''}"))
   file.close
